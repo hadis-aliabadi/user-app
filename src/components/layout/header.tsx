@@ -1,7 +1,6 @@
 import { Separator } from '@radix-ui/react-separator';
 import { Bell } from 'lucide-react';
 import { SidebarTrigger } from '../ui/sidebar';
-import Breadcrumbs from './breadcrumbs';
 
 export const Header = () => {
     return (
@@ -9,7 +8,6 @@ export const Header = () => {
             <div className="flex items-center gap-2 px-4">
                 <SidebarTrigger className="-ms-1" />
                 <Separator orientation="vertical" className="me-2 h-4" />
-                <Breadcrumbs />
             </div>
             <div className="px-4">
                 <Bell />
