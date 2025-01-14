@@ -1,5 +1,5 @@
 {
-    "name": "tuka-front",
+    "name": "user-app",
     "private": true,
     "type": "module",
     "scripts": {
