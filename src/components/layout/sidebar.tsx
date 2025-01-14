@@ -37,7 +37,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarFooter>
                 <div className="flex justify-between items-center">
                     {sidebar.open && <h3 className="font-bold">{FA_IR.logOut}</h3>}
-                    <LogOut onClick={() => logout()} />
+                    <LogOut onClick={() => logout()} className="cursor-pointer" />
                 </div>
             </SidebarFooter>
             <SidebarRail />
