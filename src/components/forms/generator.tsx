@@ -110,7 +110,7 @@ export const Generator = <T extends FieldMap>({
                 })}
 
                 <div className="col-span-12 flex justify-between mt-4">
-                    <Button type="submit" className="w-full">
+                    <Button type="submit" className="">
                         {FA_IR.submit}
                     </Button>
                     {onBackHandle && (
