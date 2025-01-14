@@ -93,7 +93,7 @@ function DashboardHomePage() {
 
     if (isLoading) return <p>Loading...</p>;
     if (isError) return <p>Error fetching data.</p>;
-    console.log(data);
+
     return (
         <>
             <Table columns={cols} data={data?.data ?? []} className="table-fixed" />
