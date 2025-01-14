@@ -15,6 +15,7 @@ import { LogOut } from 'lucide-react';
 import { FA_IR } from '~/assets/language/Fa_IR';
 import { useAuthStore } from '~/store/auth-store';
 
+import Logo from '~/assets/images/logo.webp';
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const sidebar = useSidebar();
     const logout = useAuthStore((state) => state.logout);
@@ -22,7 +23,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return (
         <Sidebar side="right" collapsible="icon" {...props}>
             <SidebarHeader>
-                <p>Novin dev</p>
+                <div className="flex justify-between items-center">
+                    {sidebar.open && <h3 className="font-bold">نوین دو</h3>}
+                    <img src={Logo} className="w-10" />
+                </div>
             </SidebarHeader>
             <Separator />
             <SidebarContent>
@@ -31,8 +35,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 ))}
             </SidebarContent>
             <SidebarFooter>
-                <LogOut onClick={() => logout()} />
-                {FA_IR.logOut}
+                <div className="flex justify-between items-center">
+                    {sidebar.open && <h3 className="font-bold">{FA_IR.logOut}</h3>}
+                    <LogOut onClick={() => logout()} />
+                </div>
             </SidebarFooter>
             <SidebarRail />
         </Sidebar>
