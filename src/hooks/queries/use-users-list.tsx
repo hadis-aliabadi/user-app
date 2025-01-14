@@ -1,24 +1,9 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
+import type { PaginatedUsersResponse } from '~/types/user';
 import axiosInstance from '~/utils/request';
 
-interface User {
-    id: number;
-    email: string;
-    first_name: string;
-    last_name: string;
-    avatar: string;
-}
-
-interface PaginatedResponse {
-    page: number;
-    per_page: number;
-    total: number;
-    total_pages: number;
-    data: User[];
-}
-
 export const usePaginatedUsers = (page: number) => {
-    return useQuery<PaginatedResponse>({
+    return useQuery<PaginatedUsersResponse>({
         queryKey: ['users', page],
         queryFn: async () => {
             const response = await axiosInstance.get(`users?page=${page}`);

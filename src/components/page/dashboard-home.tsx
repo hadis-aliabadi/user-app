@@ -9,24 +9,8 @@ import { ChevronLeft, ChevronRight, Eye, Pencil, Trash } from 'lucide-react';
 import { useDeleteUser } from '~/hooks/mutations/use-delete-user';
 
 function DashboardHomePage() {
-    const [userId, setUserId] = useState();
-    const { mutate: deleteUser } = useDeleteUser(userId);
-
-    const [currentPage, setCurrentPage] = useState(1);
-    const { data, isLoading, isError } = usePaginatedUsers(currentPage);
-
-    const handlePrevPage = () => {
-        if (currentPage > 1) setCurrentPage((prev) => prev - 1);
-    };
-
-    const handleNextPage = () => {
-        if (data && currentPage < data.total_pages) setCurrentPage((prev) => prev + 1);
-    };
-
-    if (isLoading) return <p>Loading...</p>;
-    if (isError) return <p>Error fetching data.</p>;
-    console.log(data);
-
+    const [userId, setUserId] = useState<number>();
+    const { mutate: deleteUser } = useDeleteUser(userId ?? 0);
     const cols = React.useMemo(
         () => [
             {
@@ -39,7 +23,7 @@ function DashboardHomePage() {
                 Header: 'نام',
                 accessor: 'first_name',
                 cellClass: 'list-item-heading w-10',
-                Cell: (props: string) => (
+                Cell: (props: any) => (
                     <>
                         <small>{props.value}</small>
                     </>
@@ -49,19 +33,19 @@ function DashboardHomePage() {
                 Header: 'نام خانوادگی',
                 accessor: 'last_name',
                 cellClass: 'list-item-heading w-10',
-                Cell: (props) => <small>{props.value}</small>,
+                Cell: (props: any) => <small>{props.value}</small>,
             },
             {
                 Header: 'ایمیل',
                 accessor: 'email',
                 cellClass: 'list-item-heading w-10',
-                Cell: (props) => <small>{props.value}</small>,
+                Cell: (props: any) => <small>{props.value}</small>,
             },
 
             {
                 accessor: 'id',
                 cellClass: 'text-muted w-10',
-                Cell: (props) => (
+                Cell: (props: any) => (
                     <TableActionSelector
                         menu={[
                             {
@@ -95,15 +79,24 @@ function DashboardHomePage() {
         [],
     );
 
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const { data, isLoading, isError } = usePaginatedUsers(currentPage);
+
+    const handlePrevPage = () => {
+        if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+    };
+
+    const handleNextPage = () => {
+        if (data && currentPage < data.total_pages) setCurrentPage((prev) => prev + 1);
+    };
+
+    if (isLoading) return <p>Loading...</p>;
+    if (isError) return <p>Error fetching data.</p>;
+    console.log(data);
     return (
         <>
-            <Table
-                columns={cols}
-                data={data.data}
-                className="table-fixed"
-                handlePrevPage={handlePrevPage}
-                handleNextPage={handleNextPage}
-            />
+            <Table columns={cols} data={data?.data ?? []} className="table-fixed" />
             <div className="flex items-center justify-center gap-2 my-4">
                 <button
                     className="p-2 bg-gray-200 rounded disabled:opacity-50"

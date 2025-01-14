@@ -12,7 +12,6 @@ interface TableProps {
     columns: Column[];
     data: any[];
     className?: string;
-    perPage: number;
 }
 
 export function Table({ columns, data, className = '' }: TableProps) {
