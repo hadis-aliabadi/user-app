@@ -1,225 +1,129 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
+import React, { useState } from 'react';
 
-import {
-    type Column,
-    type ColumnDef,
-    type PaginationState,
-    type Table,
-    flexRender,
-    getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
-    useReactTable,
-} from '@tanstack/react-table';
-import { useUsersList } from '~/hooks/queries/use-users-list';
-import type { Person } from '~/types/user';
+import { usePaginatedUsers } from '~/hooks/queries/use-users-list';
+
+import { Table } from '../ui/table';
+import { TableActionSelector } from '~/utils/table-action-selector';
+import { TableAction } from '~/utils/table-action';
+import { ChevronLeft, ChevronRight, Eye, Pencil, Trash } from 'lucide-react';
+import { useDeleteUser } from '~/hooks/mutations/use-delete-user';
 
 function DashboardHomePage() {
-    const columns = React.useMemo<ColumnDef<Person>[]>(
+    const [userId, setUserId] = useState();
+    const { mutate: deleteUser } = useDeleteUser(userId);
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const { data, isLoading, isError } = usePaginatedUsers(currentPage);
+
+    const handlePrevPage = () => {
+        if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+    };
+
+    const handleNextPage = () => {
+        if (data && currentPage < data.total_pages) setCurrentPage((prev) => prev + 1);
+    };
+
+    if (isLoading) return <p>Loading...</p>;
+    if (isError) return <p>Error fetching data.</p>;
+    console.log(data);
+
+    const cols = React.useMemo(
         () => [
             {
-                accessorKey: 'firstName',
-                cell: (info) => info.getValue(),
-                footer: (props) => props.column.id,
+                Header: 'شناسه کاربر',
+                accessor: 'id',
+                cellClass: 'list-item-heading w-10',
+                Cell: (props: any) => <small>{props.value}</small>,
             },
             {
-                accessorFn: (row) => row.last_name,
-                id: 'last_name',
-                cell: (info) => info.getValue(),
-                header: () => <span>Last Name</span>,
-                footer: (props) => props.column.id,
+                Header: 'نام',
+                accessor: 'first_name',
+                cellClass: 'list-item-heading w-10',
+                Cell: (props: string) => (
+                    <>
+                        <small>{props.value}</small>
+                    </>
+                ),
             },
             {
-                accessorKey: 'age',
-                header: () => 'Age',
-                footer: (props) => props.column.id,
+                Header: 'نام خانوادگی',
+                accessor: 'last_name',
+                cellClass: 'list-item-heading w-10',
+                Cell: (props) => <small>{props.value}</small>,
             },
             {
-                accessorKey: 'visits',
-                header: () => <span>Visits</span>,
-                footer: (props) => props.column.id,
+                Header: 'ایمیل',
+                accessor: 'email',
+                cellClass: 'list-item-heading w-10',
+                Cell: (props) => <small>{props.value}</small>,
             },
+
             {
-                accessorKey: 'status',
-                header: 'Status',
-                footer: (props) => props.column.id,
-            },
-            {
-                accessorKey: 'progress',
-                header: 'Profile Progress',
-                footer: (props) => props.column.id,
+                accessor: 'id',
+                cellClass: 'text-muted w-10',
+                Cell: (props) => (
+                    <TableActionSelector
+                        menu={[
+                            {
+                                component: TableAction({
+                                    path: 'edit-user',
+                                    value: props.value,
+                                    icon: <Pencil color="#219ebc" />,
+                                }),
+                            },
+                            {
+                                component: TableAction({
+                                    path: 'show-user',
+                                    value: props.value,
+                                    icon: <Eye color="#000" />,
+                                }),
+                            },
+                            {
+                                component: TableAction({
+                                    icon: <Trash color="#f00 " className="cursor-pointer" />,
+                                }),
+                                onClick: () => {
+                                    setUserId(props.value);
+                                    deleteUser();
+                                },
+                            },
+                        ]}
+                    />
+                ),
             },
         ],
         [],
     );
 
-    const { data, isLoading } = useUsersList(1);
-    if (isLoading) return <div>loading</div>;
-    console.log(data);
-
     return (
         <>
-            <MyTable
-                {...{
-                    data: data?.data.data ?? [],
-                    columns,
-                }}
+            <Table
+                columns={cols}
+                data={data.data}
+                className="table-fixed"
+                handlePrevPage={handlePrevPage}
+                handleNextPage={handleNextPage}
             />
+            <div className="flex items-center justify-center gap-2 my-4">
+                <button
+                    className="p-2 bg-gray-200 rounded disabled:opacity-50"
+                    disabled={currentPage === 1}
+                    onClick={handlePrevPage}
+                >
+                    <ChevronRight />
+                </button>
+                <span>
+                    صفحه {data?.page} از {data?.total_pages}
+                </span>
+                <button
+                    className="p-2 bg-gray-200 rounded disabled:opacity-50"
+                    disabled={currentPage === data?.total_pages}
+                    onClick={handleNextPage}
+                >
+                    <ChevronLeft />
+                </button>
+            </div>
         </>
-    );
-}
-
-function MyTable({ data, columns }: { data: Person[]; columns: ColumnDef<Person>[] }) {
-    const [pagination, setPagination] = React.useState<PaginationState>({
-        pageIndex: 0,
-        pageSize: 10,
-    });
-
-    const table = useReactTable({
-        columns,
-        data,
-        debugTable: true,
-        getCoreRowModel: getCoreRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        onPaginationChange: setPagination,
-        //no need to pass pageCount or rowCount with client-side pagination as it is calculated automatically
-        state: {
-            pagination,
-        },
-        // autoResetPageIndex: false, // turn off page index reset when sorting or filtering
-    });
-
-    return (
-        <div className="p-2">
-            <div className="h-2" />
-            <table>
-                <thead>
-                    {table.getHeaderGroups()?.map((headerGroup) => (
-                        <tr key={headerGroup.id}>
-                            {headerGroup.headers?.map((header) => {
-                                return (
-                                    <th key={header.id} colSpan={header.colSpan}>
-                                        <div
-                                            {...{
-                                                className: header.column.getCanSort()
-                                                    ? 'cursor-pointer select-none'
-                                                    : '',
-                                                onClick: header.column.getToggleSortingHandler(),
-                                            }}
-                                        >
-                                            {flexRender(
-                                                header.column.columnDef.header,
-                                                header.getContext(),
-                                            )}
-                                            {{
-                                                asc: ' 🔼',
-                                                desc: ' 🔽',
-                                            }[header.column.getIsSorted() as string] ?? null}
-                                            {/* {header.column.getCanFilter() ? (
-                        <div>
-                          <Filter column={header.column} table={table} />
-                        </div>
-                      ) : null} */}
-                                        </div>
-                                    </th>
-                                );
-                            })}
-                        </tr>
-                    ))}
-                </thead>
-                <tbody>
-                    {table.getRowModel().rows?.map((row) => {
-                        return (
-                            <tr key={row.id}>
-                                {row.getVisibleCells().map((cell) => {
-                                    return (
-                                        <td key={cell.id}>
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext(),
-                                            )}
-                                        </td>
-                                    );
-                                })}
-                            </tr>
-                        );
-                    })}
-                </tbody>
-            </table>
-            <div className="h-2" />
-            <div className="flex items-center gap-2">
-                <button
-                    className="border rounded p-1"
-                    onClick={() => table.firstPage()}
-                    disabled={!table.getCanPreviousPage()}
-                >
-                    {'<<'}
-                </button>
-                <button
-                    className="border rounded p-1"
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
-                >
-                    {'<'}
-                </button>
-                <button
-                    className="border rounded p-1"
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
-                >
-                    {'>'}
-                </button>
-                <button
-                    className="border rounded p-1"
-                    onClick={() => table.lastPage()}
-                    disabled={!table.getCanNextPage()}
-                >
-                    {'>>'}
-                </button>
-                <span className="flex items-center gap-1">
-                    <div>Page</div>
-                    <strong>
-                        {table.getState().pagination.pageIndex + 1} of{' '}
-                        {table.getPageCount().toLocaleString()}
-                    </strong>
-                </span>
-                <span className="flex items-center gap-1">
-                    | Go to page:
-                    <input
-                        type="number"
-                        min="1"
-                        max={table.getPageCount()}
-                        defaultValue={table.getState().pagination.pageIndex + 1}
-                        onChange={(e) => {
-                            const page = e.target.value ? Number(e.target.value) - 1 : 0;
-                            table.setPageIndex(page);
-                        }}
-                        className="border p-1 rounded w-16"
-                    />
-                </span>
-                <select
-                    value={table.getState().pagination.pageSize}
-                    onChange={(e) => {
-                        table.setPageSize(Number(e.target.value));
-                    }}
-                >
-                    {[10, 20, 30, 40, 50].map((pageSize) => (
-                        <option key={pageSize} value={pageSize}>
-                            Show {pageSize}
-                        </option>
-                    ))}
-                </select>
-            </div>
-            <div>
-                Showing {table.getRowModel().rows.length.toLocaleString()} of{' '}
-                {table.getRowCount().toLocaleString()} Rows
-            </div>
-            <pre>{JSON.stringify(table.getState().pagination, null, 2)}</pre>
-        </div>
     );
 }
 
