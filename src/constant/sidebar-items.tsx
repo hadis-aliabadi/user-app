@@ -13,12 +13,12 @@ export const getSidebarMenus: () => MenuType[] = () => [
                 isActive: true,
                 items: [
                     {
-                        title: 'ایجاد کاربر جدید',
-                        url: '#',
+                        title: 'لیست کاربر ها ',
+                        url: '',
                     },
                     {
-                        title: '',
-                        url: '#',
+                        title: 'ایجاد کاربر جدید',
+                        url: 'create-user',
                     },
                 ],
             },
