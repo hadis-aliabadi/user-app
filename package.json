@@ -3,7 +3,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build --output public ",
+        "build": "vite build  ",
         "dev": "react-router dev",
         "start": "cross-env  react-router-serve ./build/server/index.js",
         "typecheck": "react-router typegen && tsc",
@@ -28,7 +28,6 @@
         "@react-router/node": "^7.1.0",
         "@react-router/serve": "^7.1.0",
         "@tanstack/react-query": "^5.62.8",
-        "@tanstack/react-table": "^8.20.6",
         "@xstate/store": "^2.6.2",
         "axios": "^1.7.9",
         "class-variance-authority": "^0.7.1",
