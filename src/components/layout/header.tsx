@@ -9,9 +9,6 @@ export const Header = () => {
                 <SidebarTrigger className="-ms-1" />
                 <Separator orientation="vertical" className="me-2 h-4" />
             </div>
-            <div className="px-4">
-                <Bell />
-            </div>
         </header>
     );
 };
